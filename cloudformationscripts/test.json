@@ -148,6 +148,63 @@
           ]
         }
       }
+    },
+    "PrivateSubnetAz2": {
+      "Condition": "CreateVpcResources",
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "VpcCidrs",
+            {
+              "Ref": "AWS::Region"
+            },
+            "subnet2"
+          ]
+        },
+        "AvailabilityZone": {
+          "Fn::If": [
+            "UseSpecifiedVpcAvailabilityZones",
+            {
+              "Fn::Select": [
+                "1",
+                {
+                  "Ref": "VpcAvailabilityZones"
+                }
+              ]
+            },
+            {
+              "Fn::Select": [
+                "1",
+                {
+                  "Fn::GetAZs": {
+                    "Ref": "AWS::Region"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "InternetGateway": {
+      "Condition": "CreateVpcResources",
+      "Type": "AWS::EC2::InternetGateway"
+    },
+    "AttachGateway": {
+      "Condition": "CreateVpcResources",
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
     }
   }
 }
